@@ -1,0 +1,38 @@
+{
+  "launcher": "Zalith Launcher",
+  "minecraftVersion": "1.12.2 Forge",
+  "modsDirectory": ".minecraft/versions/1.12.2 Forge/mods",
+  "exportedAt": "2025-11-21T11:21:00+03:30",
+  "mods": [
+    {
+      "filename": "ApeGunAddon-1.12.2-0.1.jar",
+      "name": "ApeGunAddon",
+      "modVersion": "0.1",
+      "minecraftCompatible": "1.12.2",
+      "path": ".minecraft/versions/1.12.2 Forge/mods/ApeGunAddon-1.12.2-0.1.jar",
+      "actions": ["viewDetails", "edit", "delete"],
+      "sizeBytes": null,
+      "enabled": true
+    },
+    {
+      "filename": "guns-0.15.3-1.12.2.jar",
+      "name": "guns",
+      "modVersion": "0.15.3",
+      "minecraftCompatible": "1.12.2",
+      "path": ".minecraft/versions/1.12.2 Forge/mods/guns-0.15.3-1.12.2.jar",
+      "actions": ["viewDetails", "edit", "delete"],
+      "sizeBytes": null,
+      "enabled": true
+    },
+    {
+      "filename": "obfuscate-0.4.2-1.12.2.jar",
+      "name": "obfuscate",
+      "modVersion": "0.4.2",
+      "minecraftCompatible": "1.12.2",
+      "path": ".minecraft/versions/1.12.2 Forge/mods/obfuscate-0.4.2-1.12.2.jar",
+      "actions": ["viewDetails", "edit", "delete"],
+      "sizeBytes": null,
+      "enabled": true
+    }
+  ]
+}
