@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LAN Chat (WebRTC, manual signaling)</title>
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial; margin: 12px; }
+    header { margin-bottom: 12px; }
+    textarea { width: 100%; height: 120px; font-family: monospace; margin-bottom: 8px; }
+    #chat { border: 1px solid #ddd; padding: 8px; height: 300px; overflow: auto; background:#f9f9f9; }
+    .msg { margin: 6px 0; }
+    .me { color: #0a84ff; }
+    .them { color: #1a1a1a; }
+    .controls { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+    input[type="text"] { flex:1; padding:6px; }
+    button { padding:6px 10px; }
+    label { font-weight:600; display:block; margin-top:8px; }
+    .small { font-size:0.9rem; color:#555; }
+    .status { font-weight:700; margin-left:8px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h2>LAN Chat (peer-to-peer, manual signaling)</h2>
+    <div class="small">Open this file in two or more browsers on machines on the same LAN. Exchange the SDP JSON by copying/pasting between peers (or using any local transfer method).</div>
+  </header>
+
+  <div>
+    <label>Display name</label>
+    <input id="name" type="text" placeholder="Your name (e.g. Alice)" value="Me">
+  </div>
+
+  <div class="controls">
+    <button id="createOffer">Create offer (Host)</button>
+    <button id="generateAnswer" disabled>Generate answer (when remote offer pasted)</button>
+    <button id="copyLocal" disabled>Copy local SDP</button>
+    <button id="clear">Reset</button>
+    <div class="status" id="status">Idle</div>
+  </div>
+
+  <label>Local SDP (copy this to the other peer)</label>
+  <textarea id="localSDP" readonly></textarea>
+
+  <label>Remote SDP (paste the other peer's SDP here)</label>
+  <textarea id="remoteSDP" placeholder='Paste JSON from other peer here'></textarea>
+
+  <div class="controls">
+    <button id="applyRemote">Apply remote SDP</button>
+  </div>
+
+  <hr>
+
+  <div id="chat"></div>
+
+  <div style="display:flex; gap:8px; margin-top:8px;">
+    <input id="message" type="text" placeholder="Type a message">
+    <button id="send" disabled>Send</button>
+  </div>
+
+  <script>
+    let pc = null;
+    let dc = null;
+    let nameInput = document.getElementById('name');
+    const localSDP = document.getElementById('localSDP');
+    const remoteSDP = document.getElementById('remoteSDP');
+    const createOfferBtn = document.getElementById('createOffer');
+    const generateAnswerBtn = document.getElementById('generateAnswer');
+    const applyRemoteBtn = document.getElementById('applyRemote');
+    const copyLocalBtn = document.getElementById('copyLocal');
+    const clearBtn = document.getElementById('clear');
+    const statusEl = document.getElementById('status');
+    const chatEl = document.getElementById('chat');
+    const messageInput = document.getElementById('message');
+    const sendBtn = document.getElementById('send');
+
+    function logStatus(s) { statusEl.textContent = s; }
+
+    function appendMessage(text, who='them') {
+      const div = document.createElement('div');
+      div.className = 'msg ' + (who === 'me' ? 'me' : 'them');
+      div.textContent = text;
+      chatEl.appendChild(div);
+      chatEl.scrollTop = chatEl.scrollHeight;
+    }
+
+    function reset() {
+      if (pc) {
+        try { pc.close(); } catch (e) {}
+      }
+      pc = null; dc = null;
+      localSDP.value = '';
+      remoteSDP.value = '';
+      sendBtn.disabled = true;
+      copyLocalBtn.disabled = true;
+      generateAnswerBtn.disabled = true;
+      logStatus('Idle');
+      appendMessage('Session reset', 'them');
+    }
+
+    clearBtn.addEventListener('click', reset);
+
+    function waitIceGatheringComplete(pc) {
+      return new Promise(resolve => {
+        if (pc.iceGatheringState === 'complete') {
+          resolve();
+        } else {
+          function check(e) {
+            if (pc.iceGatheringState === 'complete') {
+              pc.removeEventListener('icegatheringstatechange', check);
+              resolve();
+            }
+          }
+          pc.addEventListener('icegatheringstatechange', check);
+          // Also handle candidate nulls to be safe
+          pc.addEventListener('icecandidate', (ev) => {
+            if (!ev.candidate && pc.iceGatheringState === 'complete') {
+              resolve();
+            }
+          });
+        }
+      });
+    }
+
+    createOfferBtn.addEventListener('click', async () => {
+      reset();
+      pc = new RTCPeerConnection();
+      dc = pc.createDataChannel('chat');
+      dc.onopen = () => {
+        appendMessage('Data channel open', 'them');
+        sendBtn.disabled = false;
+        logStatus('Connected (you created offer)');
+      };
+      dc.onmessage = (ev) => {
+        let payload = ev.data;
+        appendMessage(payload, 'them');
+      };
+      pc.onicecandidate = (e) => {
+        console.log('icecandidate', e && e.candidate);
+      };
+      pc.onconnectionstatechange = () => {
+        console.log('pc state', pc.connectionState);
+      };
+      logStatus('Creating offer...');
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      // Wait for ICE to finish gathering so the SDP contains candidates
+      await waitIceGatheringComplete(pc);
+      localSDP.value = JSON.stringify(pc.localDescription);
+      copyLocalBtn.disabled = false;
+      appendMessage('Offer created — copy the Local SDP and send it to the other peer.', 'them');
+    });
+
+    applyRemoteBtn.addEventListener('click', async () => {
+      if (!remoteSDP.value) {
+        alert('Paste remote SDP JSON first.');
+        return;
+      }
+      let parsed;
+      try {
+        parsed = JSON.parse(remoteSDP.value);
+      } catch (e) {
+        alert('Remote SDP is not valid JSON.');
+        return;
+      }
+
+      // If we have no PeerConnection, create one (answerer path)
+      if (!pc) {
+        pc = new RTCPeerConnection();
+        pc.ondatachannel = (ev) => {
+          dc = ev.channel;
+          dc.onopen = () => {
+            appendMessage('Data channel open', 'them');
+            sendBtn.disabled = false;
+            logStatus('Connected (you answered)');
+          };
+          dc.onmessage = (ev) => {
+            appendMessage(ev.data, 'them');
+          };
+        };
+        pc.onicecandidate = (e) => {
+          console.log('icecandidate', e && e.candidate);
+        };
+      }
+
+      // Distinguish between offer and answer by type
+      if (parsed.type === 'offer') {
+        logStatus('Received offer — creating answer...');
+        await pc.setRemoteDescription(parsed);
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        await waitIceGatheringComplete(pc);
+        localSDP.value = JSON.stringify(pc.localDescription);
+        copyLocalBtn.disabled = false;
+        appendMessage('Answer generated — copy the Local SDP and send it back to the offerer.', 'them');
+      } else if (parsed.type === 'answer') {
+        // If we are the offerer, we need to set remote answer
+        if (!pc) {
+          alert('No local PeerConnection found. Create offer first.');
+          return;
+        }
+        logStatus('Setting remote answer...');
+        await pc.setRemoteDescription(parsed);
+        appendMessage('Remote answer applied. Connection should establish shortly.', 'them');
+        logStatus('Connected (answer applied)');
+      } else {
+        alert('Unknown SDP type: ' + parsed.type);
+      }
+    });
+
+    copyLocalBtn.addEventListener('click', async () => {
+      if (!localSDP.value) return;
+      try {
+        await navigator.clipboard.writeText(localSDP.value);
+        appendMessage('Local SDP copied to clipboard. Paste it to the other peer.', 'them');
+      } catch (e) {
+        // fallback: select the textarea
+        localSDP.select();
+        appendMessage('Unable to copy automatically — select and copy the Local SDP textarea.', 'them');
+      }
+    });
+
+    sendBtn.addEventListener('click', () => {
+      const txt = messageInput.value.trim();
+      if (!txt || !dc || dc.readyState !== 'open') return;
+      const msg = (nameInput.value || 'Me') + ': ' + txt;
+      dc.send(msg);
+      appendMessage(msg, 'me');
+      messageInput.value = '';
+    });
+
+    // Also allow Enter to send
+    messageInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendBtn.click();
+      }
+    });
+
+    // Simple auto-apply if remote contains an offer — enable answer generation button
+    remoteSDP.addEventListener('input', () => {
+      try {
+        const p = JSON.parse(remoteSDP.value || '');
+        if (p && p.type === 'offer') {
+          generateAnswerBtn.disabled = false;
+        } else {
+          generateAnswerBtn.disabled = true;
+        }
+      } catch (e) {
+        generateAnswerBtn.disabled = true;
+      }
+    });
+
+    // Shortcut: generate answer by applying remote when it's an offer
+    generateAnswerBtn.addEventListener('click', async () => {
+      if (!remoteSDP.value) { alert('Paste offer JSON into Remote SDP first.'); return; }
+      // We call same applyRemote handler
+      applyRemoteBtn.click();
+    });
+
+    // Initialize
+    logStatus('Idle — create offer or paste an offer from another peer.');
+  </script>
+</body>
+</html>
