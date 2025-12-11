@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Minecraft Mobile v1.2.6</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>">
+</head>
+<body>
+    <!-- Main Menu -->
+    <div id="mainMenu" class="screen">
+        <div class="menu-container">
+            <div class="menu-header">
+                <div class="title-container">
+                    <h1 class="title-glow">MINECRAFT</h1>
+                    <p class="version">Mobile Edition v1.2.6</p>
+                </div>
+                <div class="player-display">
+                    <div class="player-avatar">👤</div>
+                    <div class="player-name">Steve</div>
+                </div>
+            </div>
+
+            <div class="menu-content scrollable">
+                <!-- Worlds Section -->
+                <div class="section">
+                    <h2 class="section-title">🌍 WORLDS</h2>
+                    <div id="worldsList" class="worlds-grid">
+                        <!-- Worlds populated by JS -->
+                    </div>
+                    <button id="createWorldBtn" class="btn btn-large btn-success">
+                        <span class="btn-icon">+</span> CREATE NEW WORLD
+                    </button>
+                </div>
+
+                <!-- Game Modes -->
+                <div class="section">
+                    <h2 class="section-title">🎮 GAME MODES</h2>
+                    <div class="buttons-grid">
+                        <button id="singleplayerBtn" class="btn btn-primary btn-xl">
+                            <span class="btn-icon">🏠</span> SINGLEPLAYER
+                        </button>
+                        <button id="multiplayerBtn" class="btn btn-primary btn-xl">
+                            <span class="btn-icon">👥</span> MULTIPLAYER
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Options & More -->
+                <div class="section">
+                    <h2 class="section-title">⚙️ SETTINGS</h2>
+                    <div class="buttons-grid">
+                        <button id="optionsBtn" class="btn btn-secondary">
+                            <span class="btn-icon">⚙️</span> OPTIONS
+                        </button>
+                        <button id="achievementsBtn" class="btn btn-secondary">
+                            <span class="btn-icon">🏆</span> ACHIEVEMENTS
+                        </button>
+                        <button id="creditsBtn" class="btn btn-secondary">
+                            <span class="btn-icon">📜</span> CREDITS
+                        </button>
+                        <button id="quitBtn" class="btn btn-danger">
+                            <span class="btn-icon">🚪</span> QUIT GAME
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Statistics -->
+                <div class="section stats-section">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="totalPlayTime">0h</div>
+                            <div class="stat-label">Play Time</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="worldsCount">0</div>
+                            <div class="stat-label">Worlds</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="blocksMined">0</div>
+                            <div class="stat-label">Blocks Mined</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-footer">
+                <div class="game-info">
+                    <p>Minecraft Java Edition v1.2.6 • Mobile Port • Made with ❤️</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Options Menu -->
+    <div id="optionsMenu" class="screen" style="display: none;">
+        <div class="menu-container">
+            <div class="menu-header">
+                <h2>⚙️ OPTIONS</h2>
+                <button id="backBtn" class="btn btn-back">
+                    <span class="btn-icon">←</span> BACK
+                </button>
+            </div>
+
+            <div class="options-content scrollable">
+                <!-- Graphics Settings -->
+                <div class="option-section">
+                    <h3 class="option-section-title">🎨 GRAPHICS</h3>
+                    
+                    <div class="option-item">
+                        <div class="option-label">
+                            <span class="option-icon">👁️</span>
+                            Render Distance
+                        </div>
+                        <div class="option-control">
+                            <input type="range" id="renderDistance" min="2" max="16" value="8" class="slider">
+                            <div class="slider-value" id="renderDistanceValue">8 chunks</div>
+                        </div>
+                    </div>
+
+                    <div class="option-item">
+                        <div class="option-label">
+                            <span class="option-icon">📊</span>
+                            Max FPS
+                        </div>
+                        <div class="option-control">
+                            <input type="range" id="maxFps" min="10" max="255" value="60" class="slider">
+                            <div class="slider-value" id="maxFpsValue">60</div>
+                        </div>
+                    </div>
+
+                    <div class="option-item">
+                        <div class="option-label">
+                            <span class="option-icon">⭐</span>
+                            Graphics Quality
+                        </div>
+                        <select id="graphicsQuality" class="dropdown">
+                            <option value="fast">Fast</option>
+                            <option value="fancy" selected>Fancy</option>
+                            <option value="fantastic">Fantastic</option>
+                        </select>
+                    </div>
+
+                    <div class="option-item">
+                        <div class="option-label">
+                            <span class="option-icon">✨</span>
+                            Particles
+                        </div>
+                        <select id="particles" class="dropdown">
+                            <option value="all">All</option>
+                            <option value="decreased" selected>Decreased</option>
+                            <option value="minimal">Minimal</option>
+                        </select>
+                    </div>
+
+                    <div class="option-item">
+                        <div class="option-label">
+                            <span class="option-icon">🌫️</span>
+                            Fog
+                        </div>
+                        <select id="fog" class="dropdown">
+                            <option value="fast">Fast</option>
+                            <option value="fancy" selected>Fancy</option>
+                            <option value="off">Off</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Game Settings -->
+                <div class="option-section">
+                    <h3 class="option-section-title">🎮 GAME</h3>
+                    
+                    <div class="option-item">
+                        <div class="option-label">
+                            <span class="option-icon">🎯</span>
+                            Difficulty
+                        </div>
+                        <select id="difficulty" class="dropdown">
+                            <option value="peaceful">Peaceful</option>
+                            <option value="easy">Easy</option>
+                            <option value="normal" selected>Normal</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+
+                    <div class="option-item">
+                        <div class="option-label">
+                            <span class="option-icon">👤</span>
+                            Game Mode
+                        </div>
+                        <select id="gameMode" class="dropdown">
+                            <option value="survival" selected>Survival</option>
+                            <option value="creative">Creative</option>
+                            <option value="adventure">Adventure</option>
+                        </select>
+                    </div>
+
+                    <div class="option-item toggle-item">
+                        <div class="option-label">
+                            <span class="option-icon">🎲</span>
+                            Allow Cheats
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="allowCheats">
+                            <span class="slider-toggle"></span>
+                        </label>
+                    </div>
+
+                    <div class="option-item toggle-item">
+                        <div class="option-label">
+                            <span class="option-icon">📦</span>
+                            Bonus Chest
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="bonusChest">
+                            <span class="slider-toggle"></span>
+                        </label>
+                    </div>
+
+                    <div class="option-item toggle-item">
+                        <div class="option-label">
+                            <span class="option-icon">🌞</span>
+                            Day/Night Cycle
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="dayNightCycle" checked>
+                            <span class="slider-toggle"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Controls Settings -->
+                <div class="option-section">
+                    <h3 class="option-section-title">🎛️ CONTROLS</h3>
+                    
+                    <div class="option-item">
+                        <div class="option-label">
+                            <span class="option-icon">🎮</span>
+                            Sensitivity
+                        </div>
+                        <div class="option-control">
+                            <input type="range" id="sensitivity" min="1" max="10" value="5" class="slider">
+                            <div class="slider-value" id="sensitivityValue">5</div>
+                        </div>
+                    </div>
+
+                    <div class="option-item toggle-item">
+                        <div class="option-label">
+                            <span class="option-icon">↕️</span>
+                            Invert Y-Axis
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="invertY">
+                            <span class="slider-toggle"></span>
+                        </label>
+                    </div>
+
+                    <div class="option-item toggle-item">
+                        <div class="option-label">
+                            <span class="option-icon">🦘</span>
+                            Auto Jump
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="autoJump" checked>
+                            <span class="slider-toggle"></span>
+                        </label>
+                    </div>
+
+                    <div class="option-item toggle-item">
+                        <div class="option-label">
+                            <span class="option-icon">📳</span>
+                            Vibration
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="vibration" checked>
+                            <span class="slider-toggle"></span>
+                        </label>
+                    </div>
+
+                    <div class="option-item">
+                        <div class="option-label">
+                            <span class="option-icon">✋</span>
+                            Touch Size
+                        </div>
+                        <select id="touchSize" class="dropdown">
+                            <option value="small">Small</option>
+                            <option value="normal" selected>Normal</option>
+                            <option value="large">Large</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Audio Settings -->
+                <div class="option-section">
+                    <h3 class="option-section-title">🔊 AUDIO</h3>
+                    
+                    <div class="option-item">
+                        <div class="option-label">
+                            <span class="option-icon">🔈</span>
+                            Master Volume
+                        </div>
+                        <div class="option-control">
+                            <input type="range" id="masterVolume" min="0" max="100" value="70" class="slider">
+                            <div class="slider-value" id="masterVolumeValue">70%</div>
+                        </div>
+                    </div>
+
+                    <div class="option-item">
+                        <div class="option-label">
+                            <span class="option-icon">🎵</span>
+                            Music Volume
+                        </div>
+                        <div class="option-control">
+                            <input type="range" id="musicVolume" min="0" max="100" value="50" class="slider">
+                            <div class="slider-value" id="musicVolumeValue">50%</div>
+                        </div>
+                    </div>
+
+                    <div class="option-item">
+                        <div class="option-label">
+                            <span class="option-icon">🎧</span>
+                            SFX Volume
+                        </div>
+                        <div class="option-control">
+                            <input type="range" id="sfxVolume" min="0" max="100" value="80" class="slider">
+                            <div class="slider-value" id="sfxVolumeValue">80%</div>
+                        </div>
+                    </div>
+
+                    <div class="option-item toggle-item">
+                        <div class="option-label">
+                            <span class="option-icon">🎵</span>
+                            Background Music
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="backgroundMusic" checked>
+                            <span class="slider-toggle"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Save/Reset Buttons -->
+                <div class="option-buttons">
+                    <button id="saveOptionsBtn" class="btn btn-success btn-large">
+                        <span class="btn-icon">💾</span> SAVE & APPLY
+                    </button>
+                    <button id="resetOptionsBtn" class="btn btn-warning">
+                        <span class="btn-icon">🔄</span> RESET TO DEFAULTS
+                    </button>
+                    <button id="doneOptionsBtn" class="btn btn-primary">
+                        <span class="btn-icon">✅</span> DONE
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create World Menu -->
+    <div id="createWorldMenu" class="screen" style="display: none;">
+        <div class="menu-container">
+            <div class="menu-header">
+                <h2>🌍 CREATE NEW WORLD</h2>
+                <button id="backToMenuBtn" class="btn btn-back">
+                    <span class="btn-icon">←</span> BACK
+                </button>
+            </div>
+
+            <div class="world-creation scrollable">
+                <div class="world-form">
+                    <div class="form-group">
+                        <label for="worldName" class="form-label">
+                            <span class="form-icon">📝</span> WORLD NAME
+                        </label>
+                        <input type="text" id="worldName" class="form-input" 
+                               placeholder="My Awesome World" value="New World" maxlength="32">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="worldSeed" class="form-label">
+                            <span class="form-icon">🌱</span> SEED (OPTIONAL)
+                        </label>
+                        <input type="text" id="worldSeed" class="form-input" 
+                               placeholder="Leave blank for random seed">
+                        <div class="form-hint">Enter a number or text for specific terrain</div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="worldGameMode" class="form-label">
+                                <span class="form-icon">👤</span> GAME MODE
+                            </label>
+                            <select id="worldGameMode" class="form-select">
+                                <option value="survival" selected>Survival</option>
+                                <option value="creative">Creative</option>
+                                <option value="hardcore">Hardcore</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="worldDifficulty" class="form-label">
+                                <span class="form-icon">🎯</span> DIFFICULTY
+                            </label>
+                            <select id="worldDifficulty" class="form-select">
+                                <option value="peaceful">Peaceful</option>
+                                <option value="easy">Easy</option>
+                                <option value="normal" selected>Normal</option>
+                                <option value="hard">Hard</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="worldType" class="form-label">
+                            <span class="form-icon">🗺️</span> WORLD TYPE
+                        </label>
+                        <select id="worldType" class="form-select">
+                            <option value="default" selected>Default</option>
+                            <option value="flat">Superflat</option>
+                            <option value="large_biomes">Large Biomes</option>
+                            <option value="amplified">Amplified</option>
+                        </select>
+                    </div>
+
+                    <div class="form-checkboxes">
+                        <div class="checkbox-item">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="allowCheatsWorld" class="checkbox-input">
+                                <span class="checkbox-custom"></span>
+                                <span class="checkbox-text">Allow Cheats</span>
+                            </label>
+                        </div>
+                        <div class="checkbox-item">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="bonusChestWorld" class="checkbox-input">
+                                <span class="checkbox-custom"></span>
+                                <span class="checkbox-text">Bonus Chest</span>
+                            </label>
+                        </div>
+                        <div class="checkbox-item">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="generateStructures" class="checkbox-input" checked>
+                                <span class="checkbox-custom"></span>
+                                <span class="checkbox-text">Generate Structures</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- World Preview -->
+                    <div class="world-preview">
+                        <h3 class="preview-title">
+                            <span class="preview-icon">👁️</span> WORLD PREVIEW
+                        </h3>
+                        <div class="preview-container">
+                            <canvas id="worldPreviewCanvas"></canvas>
+                            <div class="preview-overlay" id="previewInfo">
+                                <div class="preview-details">
+                                    <div class="preview-name">New World</div>
+                                    <div class="preview-specs">Survival • Normal • Default</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Creation Buttons -->
+                    <div class="creation-buttons">
+                        <button id="createWorldConfirmBtn" class="btn btn-success btn-xl">
+                            <span class="btn-icon">✨</span> CREATE WORLD
+                        </button>
+                        <button id="cancelCreateBtn" class="btn btn-secondary">
+                            <span class="btn-icon">❌</span> CANCEL
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Multiplayer Menu -->
+    <div id="multiplayerMenu" class="screen" style="display: none;">
+        <div class="menu-container">
+            <div class="menu-header">
+                <h2>👥 MULTIPLAYER</h2>
+                <button id="backToMainMultiBtn" class="btn btn-back">
+                    <span class="btn-icon">←</span> BACK
+                </button>
+            </div>
+
+            <div class="multiplayer-content scrollable">
+                <!-- Server List -->
+                <div class="server-list">
+                    <h3 class="section-title">🌐 DIRECT CONNECT</h3>
+                    
+                    <div id="serversList" class="servers-container">
+                        <!-- Servers will be added here -->
+                    </div>
+
+                    <!-- Add Server Form -->
+                    <div class="add-server-form">
+                        <h4 class="form-title">ADD SERVER</h4>
+                        <div class="server-input-group">
+                            <input type="text" id="serverName" class="server-input" 
+                                   placeholder="Server Name" maxlength="32">
+                            <input type="text" id="serverAddress" class="server-input" 
+                                   placeholder="play.example.com:25565">
+                            <button id="addServerBtn" class="btn btn-primary">
+                                <span class="btn-icon">+</span> ADD SERVER
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Direct Connect -->
+                    <div class="direct-connect">
+                        <h4 class="form-title">QUICK CONNECT</h4>
+                        <div class="connect-input-group">
+                            <input type="text" id="quickConnectAddress" class="connect-input" 
+                                   placeholder="IP Address:Port">
+                            <button id="directConnectBtn" class="btn btn-success">
+                                <span class="btn-icon">🔗</span> CONNECT
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- LAN Games -->
+                    <div class="lan-games">
+                        <h4 class="section-title">🏠 LAN GAMES</h4>
+                        <div id="lanGamesList" class="lan-list">
+                            <div class="lan-item empty">
+                                <div class="lan-icon">🔍</div>
+                                <div class="lan-info">
+                                    <div class="lan-name">Scanning for LAN games...</div>
+                                    <div class="lan-details">Make sure you're on the same network</div>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="refreshLanBtn" class="btn btn-secondary btn-small">
+                            <span class="btn-icon">🔄</span> REFRESH
+                        </button>
+                    </div>
+
+                    <!-- Multiplayer Info -->
+                    <div class="multiplayer-info">
+                        <div class="info-card">
+                            <h5>🎮 HOW TO PLAY MULTIPLAYER</h5>
+                            <ol class="info-steps">
+                                <li>Make sure all players are on the same Wi-Fi network</li>
+                                <li>Start a LAN world from Singleplayer (Esc → Open to LAN)</li>
+                                <li>Other players can join via Multiplayer menu</li>
+                                <li>For online play, enter server address above</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="gameContainer" class="screen" style="display: none;">
+        <canvas id="gameCanvas"></canvas>
+        
+        <!-- Touch Controls -->
+        <div id="touchControls">
+            <!-- Movement Joystick -->
+            <div id="joystickLeft" class="joystick-container">
+                <div class="joystick-background"></div>
+                <div id="joystickHandle" class="joystick-handle"></div>
+            </div>
+            
+            <!-- Look Area -->
+            <div id="lookArea" class="look-area"></div>
+            
+            <!-- Action Buttons -->
+            <div id="actionButtons" class="action-buttons">
+                <button id="jumpBtn" class="action-btn btn-jump" title="Jump">
+                    <span class="action-icon">↑</span>
+                </button>
+                <button id="breakBtn" class="action-btn btn-break" title="Break Block">
+                    <span class="action-icon">✕</span>
+                </button>
+                <button id="placeBtn" class="action-btn btn-place" title="Place Block">
+                    <span class="action-icon">□</span>
+                </button>
+                <button id="inventoryBtn" class="action-btn btn-inventory" title="Inventory">
+                    <span class="action-icon">🎒</span>
+                </button>
+                <button id="sneakBtn" class="action-btn btn-sneak" title="Sneak">
+                    <span class="action-icon">↓</span>
+                </button>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div id="quickActions" class="quick-actions">
+                <button id="pauseBtn" class="quick-btn btn-pause" title="Pause">
+                    <span class="quick-icon">⏸️</span>
+                </button>
+                <button id="chatBtn" class="quick-btn btn-chat" title="Chat">
+                    <span class="quick-icon">💬</span>
+                </button>
+                <button id="debugBtn" class="quick-btn btn-debug" title="Debug (F3)">
+                    <span class="quick-icon">🐛</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- HUD Elements -->
+        <div id="hud">
+            <!-- Health & Food -->
+            <div class="hud-health">
+                <div class="health-bar">
+                    <div class="health-fill" id="healthFill"></div>
+                    <div class="health-text" id="healthText">20</div>
+                </div>
+                <div class="food-bar">
+                    <div class="food-fill" id="foodFill"></div>
+                    <div class="food-text" id="foodText">20</div>
+                </div>
+            </div>
+            
+            <!-- Experience -->
+            <div class="hud-exp">
+                <div class="exp-bar">
+                    <div class="exp-fill" id="expFill"></div>
+                    <div class="exp-text" id="expText">Level 0</div>
+                </div>
+            </div>
+            
+            <!-- Hotbar -->
+            <div id="hotbar" class="hotbar">
+                <div class="hotbar-slots">
+                    <!-- Slots populated by JS -->
+                </div>
+                <div class="hotbar-selection" id="hotbarSelection"></div>
+            </div>
+            
+            <!-- Crosshair -->
+            <div id="crosshair" class="crosshair">
+                <div class="crosshair-center"></div>
+                <div class="crosshair-arms">
+                    <div class="arm top"></div>
+                    <div class="arm right"></div>
+                    <div class="arm bottom"></div>
+                    <div class="arm left"></div>
+                </div>
+            </div>
+            
+            <!-- Status Display -->
+            <div id="statusDisplay" class="status-display">
+                <div class="status-item">
+                    <span class="status-label">FPS:</span>
+                    <span class="status-value" id="fpsText">60</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">POS:</span>
+                    <span class="status-value" id="posText">0,0,0</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">BLOCK:</span>
+                    <span class="status-value" id="blockText">Air</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">TIME:</span>
+                    <span class="status-value" id="timeText">Day</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- In-Game Menu -->
+        <div id="ingameMenu" class="ingame-menu" style="display: none;">
+            <div class="menu-overlay"></div>
+            <div class="menu-content">
+                <div class="menu-header">
+                    <h2 class="menu-title">GAME MENU</h2>
+                    <div class="world-info">
+                        <span class="world-name" id="currentWorldName">World</span>
+                        <span class="world-time" id="currentWorldTime">00:00</span>
+                    </div>
+                </div>
+                
+                <div class="menu-buttons">
+                    <button id="resumeGameBtn" class="menu-btn btn-primary">
+                        <span class="menu-icon">▶️</span> BACK TO GAME
+                    </button>
+                    <button id="optionsInGameBtn" class="menu-btn">
+                        <span class="menu-icon">⚙️</span> OPTIONS
+                    </button>
+                    <button id="saveGameBtn" class="menu-btn">
+                        <span class="menu-icon">💾</span> SAVE WORLD
+                    </button>
+                    <button id="saveAndQuitBtn" class="menu-btn">
+                        <span class="menu-icon">🏠</span> SAVE AND QUIT
+                    </button>
+                    <button id="quitToDesktopBtn" class="menu-btn btn-danger">
+                        <span class="menu-icon">🚪</span> QUIT TO DESKTOP
+                    </button>
+                </div>
+                
+                <div class="menu-stats">
+                    <div class="stat-card">
+                        <h4>SESSION STATS</h4>
+                        <div class="stat-grid">
+                            <div class="stat">
+                                <div class="stat-label">Play Time</div>
+                                <div class="stat-value" id="sessionTime">0m</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-label">Blocks Placed</div>
+                                <div class="stat-value" id="blocksPlaced">0</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-label">Blocks Mined</div>
+                                <div class="stat-value" id="blocksMinedSession">0</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-label">Distance Walked</div>
+                                <div class="stat-value" id="distanceWalked">0m</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Inventory Screen -->
+        <div id="inventoryScreen" class="inventory-screen" style="display: none;">
+            <!-- Inventory content -->
+        </div>
+        
+        <!-- Chat Screen -->
+        <div id="chatScreen" class="chat-screen" style="display: none;">
+            <!-- Chat content -->
+        </div>
+        
+        <!-- Debug Panel -->
+        <div id="debugPanel" class="debug-panel" style="display: none;">
+            <div class="debug-header">
+                <h3>DEBUG INFO</h3>
+                <button id="closeDebug" class="debug-close">×</button>
+            </div>
+            <div class="debug-content" id="debugInfo">
+                <!-- Debug info populated by JS -->
+            </div>
+        </div>
+        
+        <!-- Notifications -->
+        <div id="notificationArea" class="notification-area"></div>
+    </div>
+
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen" style="display: none;">
+        <div class="loading-content">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <div class="spinner-ring"></div>
+            </div>
+            <div class="loading-text" id="loadingText">Loading...</div>
+            <div class="loading-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">0%</div>
+            </div>
+            <div class="loading-tip" id="loadingTip">
+                Tip: Double tap screen to pause the game
+            </div>
+        </div>
+    </div>
+
+    <!-- Achievements Screen -->
+    <div id="achievementsScreen" class="screen" style="display: none;">
+        <!-- Achievements content -->
+    </div>
+
+    <!-- Credits Screen -->
+    <div id="creditsScreen" class="screen" style="display: none;">
+        <!-- Credits content -->
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
